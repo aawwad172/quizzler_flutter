@@ -9,6 +9,7 @@ class Quizzler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.grey.shade900,
         body: SafeArea(
@@ -57,6 +58,30 @@ class _QuizPageState extends State<QuizPage> {
     });
   }
 
+  void showAlert() {
+    Alert(
+      context: context,
+      type: AlertType.success,
+      title: "Congrats",
+      desc: "Congrats for finishing the Quiz",
+      buttons: [
+        DialogButton(
+          width: 120,
+          child: const Text(
+            "COOL",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () {
+            quizBrain.resetQuestionNumber();
+            setState(() {
+              results.clear();
+            });
+          },
+        )
+      ],
+    ).show();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -99,7 +124,12 @@ class _QuizPageState extends State<QuizPage> {
               onTap: () {
                 setState(() {
                   checkAnswer(true);
-                  quizBrain.changeQuestion();
+                  if (quizBrain.getQuestionNumber() ==
+                      quizBrain.getQuestionBankLength() - 1) {
+                    showAlert();
+                  } else {
+                    quizBrain.changeQuestion();
+                  }
                 });
               },
             ),
@@ -124,22 +154,17 @@ class _QuizPageState extends State<QuizPage> {
               onTap: () {
                 setState(() {
                   checkAnswer(false);
-                  quizBrain.changeQuestion();
                   if (quizBrain.getQuestionNumber() ==
                       quizBrain.getQuestionBankLength() - 1) {
-                    quizBrain.resetQuestionNumber();
-                    Alert(
-                      context: context,
-                      title: "RFLUTTER ALERT",
-                      desc: "Flutter is more awesome with RFlutter Alert.",
-                    ).show();
+                    showAlert();
+                  } else {
+                    quizBrain.changeQuestion();
                   }
                 });
               },
             ),
           ),
         ),
-        //TODO: Add a Row here as your score keeper
         Row(
           children: results,
         ),
