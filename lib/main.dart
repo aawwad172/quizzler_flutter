@@ -1,0 +1,155 @@
+import 'package:flutter/material.dart';
+import 'package:quizzler_flutter/quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+
+QuizBrain quizBrain = QuizBrain();
+void main() => runApp(Quizzler());
+
+class Quizzler extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        backgroundColor: Colors.grey.shade900,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: QuizPage(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class QuizPage extends StatefulWidget {
+  @override
+  _QuizPageState createState() => _QuizPageState();
+}
+
+class _QuizPageState extends State<QuizPage> {
+  List<Icon> results = [];
+
+  /// This function is to add answer result of the user into the list to be displayed!
+  Icon addAnswerResults(bool answer) {
+    if (answer) {
+      return const Icon(
+        Icons.check,
+        color: Colors.green,
+      );
+    } else {
+      return const Icon(
+        Icons.close,
+        color: Colors.red,
+      );
+    }
+  }
+
+  void checkAnswer(bool userPickedAnswer) {
+    setState(() {
+      if (quizBrain.getQuestionAnswer(quizBrain.getQuestionNumber()) ==
+          userPickedAnswer) {
+        results.add(addAnswerResults(true));
+      } else {
+        results.add(addAnswerResults(false));
+      }
+      quizBrain.changeQuestion();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Expanded(
+          flex: 5,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Center(
+              child: Text(
+                quizBrain.getQuestionText(quizBrain.getQuestionNumber()) ??
+                    'There is no Questions left!',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 25.0,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: GestureDetector(
+              child: Container(
+                color: Colors.green,
+                child: const Center(
+                  child: Text(
+                    'True',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+              ),
+              onTap: () {
+                setState(() {
+                  checkAnswer(true);
+                  quizBrain.changeQuestion();
+                });
+              },
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: GestureDetector(
+              child: Container(
+                color: Colors.red,
+                child: const Center(
+                  child: Text(
+                    'False',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              onTap: () {
+                setState(() {
+                  checkAnswer(false);
+                  quizBrain.changeQuestion();
+                  if (quizBrain.getQuestionNumber() ==
+                      quizBrain.getQuestionBankLength() - 1) {
+                    quizBrain.resetQuestionNumber();
+                    Alert(
+                      context: context,
+                      title: "RFLUTTER ALERT",
+                      desc: "Flutter is more awesome with RFlutter Alert.",
+                    ).show();
+                  }
+                });
+              },
+            ),
+          ),
+        ),
+        //TODO: Add a Row here as your score keeper
+        Row(
+          children: results,
+        ),
+      ],
+    );
+  }
+}
+
+/*
+question1: 'You can lead a cow down stairs but not up stairs.', false,
+question2: 'Approximately one quarter of human bones are in the feet.', true,
+question3: 'A slug\'s blood is green.', true,
+*/
